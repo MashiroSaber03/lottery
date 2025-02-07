@@ -1,7 +1,7 @@
 from astrbot.api.event import filter, AstrMessageEvent, MessageEventResult
 from astrbot.api.star import Context, Star, register
 
-@register("repeater", "mash", "一个带开关的复读插件", "1.0.0", "repo url")
+@register("echobot", "Your Name", "一个带开关的复读插件", "1.0.0", "repo url")
 class EchoPlugin(Star):
     def __init__(self, context: Context):
         super().__init__(context)
@@ -18,7 +18,16 @@ class EchoPlugin(Star):
     async def echo(self, event: AstrMessageEvent, message: str):
         '''复读指令'''
         if self.echo_enabled:
+            # 执行复读功能
             yield event.plain_result(f"你说：{message}")
         else:
-            yield event.plain_result("复读模式已关闭，无法复读。")
+            # 调用大模型 AI 进行对话
+            ai_response = await self.get_ai_response(message)
+            yield event.plain_result(f"AI 回复：{ai_response}")
 
+    async def get_ai_response(self, message: str) -> str:
+        '''调用大模型 AI 获取回复'''
+        # 在此添加调用大模型 AI 的代码
+        # 例如，调用 OpenAI API 或其他大模型服务
+        # 返回 AI 的回复
+        return "这是 AI 的回复"
