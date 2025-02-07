@@ -2,12 +2,12 @@ import random
 from astrbot.api.event import filter, AstrMessageEvent
 from astrbot.api.star import Context, Star, register
 
-@register("lottery", "Your Name", "一个简单的抓阄插件", "1.0.0", "repo url")
+@register("lottery", "ましろSaber", "一个简单的抓阄插件", "1.0.0", "repo url")
 class LotteryPlugin(Star):
     @filter.command("抓阄")
     async def lottery(self, event: AstrMessageEvent):
         '''从提供的名字中随机抽取一个'''
-        # 获取用户输入的名字字符串（去除/抓阄指令部分）
+        
         message_str = event.message_str.strip("/抓阄").strip()
         
         # 检查输入的名字是否为空
