@@ -1,5 +1,6 @@
-from astrbot.api.event import filter, AstrMessageEvent
+from astrbot.api.event import filter, AstrMessageEvent, MessageEventResult
 from astrbot.api.star import Context, Star, register
+from astrbot.api import logger
 
 @register("repeater", "Your Name", "一个带开关的复读机插件(群组/私聊隔离)", "1.0.0", "repo url")
 class RepeaterPlugin(Star):
