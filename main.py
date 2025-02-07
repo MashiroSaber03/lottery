@@ -1,18 +1,39 @@
-from astrbot.api.event import filter, AstrMessageEvent, MessageEventResult
+from astrbot.api.event import filter, AstrMessageEvent
 from astrbot.api.star import Context, Star, register
-from astrbot.api import logger
 
-@register("helloworld", "Your Name", "一个简单的 Hello World 插件", "1.0.0", "repo url")
-class MyPlugin(Star):
+@register("repeater", "Your Name", "一个带开关的复读机插件(群组/私聊隔离)", "1.0.0", "repo url")
+class RepeaterPlugin(Star):
     def __init__(self, context: Context):
         super().__init__(context)
-    
-    # 注册指令的装饰器。指令名为 helloworld。注册成功后，发送 `/helloworld` 就会触发这个指令，并回复 `你好, {user_name}!`
-    @filter.command("helloworld")
-    async def helloworld(self, event: AstrMessageEvent):
-        '''这是一个 hello world 指令''' # 这是 handler 的描述，将会被解析方便用户了解插件内容。建议填写。
-        user_name = event.get_sender_name()
-        message_str = event.message_str # 用户发的纯文本消息字符串
-        message_chain = event.get_messages() # 用户所发的消息的消息链 # from astrbot.api.message_components import *
-        logger.info(message_chain)
-        yield event.plain_result(f"Hello, {user_name}, 你发了 {message_str}!") # 发送一条纯文本消息
+        self.repeater_enabled = {}  # 使用字典存储每个会话的开关状态
+
+    @filter.command("repeat_on")
+    async def repeat_on(self, event: AstrMessageEvent):
+        """开启复读模式"""
+        self.repeater_enabled[event.session_id] = True
+        yield event.plain_result("复读模式已开启")
+
+    @filter.command("repeat_off")
+    async def repeat_off(self, event: AstrMessageEvent):
+        """关闭复读模式"""
+        self.repeater_enabled[event.session_id] = False
+        yield event.plain_result("复读模式已关闭")
+
+    @filter.command("repeat_status")
+    async def repeat_status(self, event: AstrMessageEvent):
+        """查看复读模式状态"""
+        status = self.repeater_enabled.get(event.session_id, False)  # 获取当前会话状态, 默认为False
+        status_text = "开启" if status else "关闭"
+        yield event.plain_result(f"当前复读模式: {status_text}")
+
+    @filter.message()
+    async def repeat_message(self, event: AstrMessageEvent):
+        """复读收到的消息（受开关控制）"""
+        if event.is_from_self():
+            return
+
+        # 检查当前会话的复读模式是否开启。 如果session_id 不在字典中，get方法返回默认值False
+        if self.repeater_enabled.get(event.session_id, False):
+            message_str = event.message_str
+            if message_str:
+                yield event.result(event.message_obj.message)
