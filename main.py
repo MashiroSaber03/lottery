@@ -9,7 +9,7 @@ class RepeaterPlugin(Star):
 
     @filter.command("repeat")
     async def repeat(self, event: AstrMessageEvent):
-        '''切换复读机的启用/禁用状态'''
+        '''切换复读机的启用/禁用状态并复读消息'''
         if not self.enabled:
             self.enabled = True
             yield event.plain_result("复读机插件已启用。现在我将复读您的消息。")
@@ -17,10 +17,7 @@ class RepeaterPlugin(Star):
             self.enabled = False
             yield event.plain_result("复读机插件已禁用。")
 
-    @filter.event(AstrMessageEvent)
-    async def on_message(self, event: AstrMessageEvent):
-        '''如果复读功能启用，复读用户消息'''
+        # 如果启用复读功能，复读用户消息
         if self.enabled:
             message_str = event.message_str
-            user_name = event.get_sender_name()
-            yield event.plain_result(f"{user_name} 说: {message_str}")
+            yield event.plain_result(f"{event.get_sender_name()} 说: {message_str}")
