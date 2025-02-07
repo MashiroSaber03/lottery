@@ -1,33 +1,25 @@
 from astrbot.api.event import filter, AstrMessageEvent, MessageEventResult
 from astrbot.api.star import Context, Star, register
 
-@register("echobot", "Your Name", "一个带开关的复读插件", "1.0.0", "repo url")
-class EchoPlugin(Star):
+@register("repeater", "Your Name", "一个简单的复读机插件", "1.0.0", "repo url")
+class RepeaterPlugin(Star):
     def __init__(self, context: Context):
         super().__init__(context)
-        self.echo_enabled = False  # 默认关闭复读模式
+        self.enabled = True  # 设置插件启用状态，True 表示启用，False 表示禁用
 
-    @filter.command("echobot")
-    async def echobot(self, event: AstrMessageEvent):
-        '''切换复读模式'''
-        self.echo_enabled = not self.echo_enabled
-        status = "开启" if self.echo_enabled else "关闭"
-        yield event.plain_result(f"复读模式已{status}。")
+    @filter.command("repeat")
+    async def repeat(self, event: AstrMessageEvent):
+        '''这是一个复读机指令'''
+        if not self.enabled:
+            return  # 如果插件被禁用，直接返回，不执行后续代码
 
-    @filter.command("echo")
-    async def echo(self, event: AstrMessageEvent, message: str):
-        '''复读指令'''
-        if self.echo_enabled:
-            # 执行复读功能
-            yield event.plain_result(f"你说：{message}")
-        else:
-            # 调用大模型 AI 进行对话
-            ai_response = await self.get_ai_response(message)
-            yield event.plain_result(f"AI 回复：{ai_response}")
+        user_name = event.get_sender_name()
+        message_str = event.message_str  # 获取消息的纯文本内容
+        yield event.plain_result(f"{user_name} 说: {message_str}")
 
-    async def get_ai_response(self, message: str) -> str:
-        '''调用大模型 AI 获取回复'''
-        # 在此添加调用大模型 AI 的代码
-        # 例如，调用 OpenAI API 或其他大模型服务
-        # 返回 AI 的回复
-        return "这是 AI 的回复"
+    @filter.command("toggle")
+    async def toggle(self, event: AstrMessageEvent):
+        '''切换复读机插件的启用状态'''
+        self.enabled = not self.enabled
+        status = "启用" if self.enabled else "禁用"
+        yield event.plain_result(f"复读机插件已{status}。")
