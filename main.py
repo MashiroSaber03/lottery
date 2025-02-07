@@ -5,11 +5,11 @@ from astrbot.api.star import Context, Star, register
 class RepeaterPlugin(Star):
     def __init__(self, context: Context):
         super().__init__(context)
-        self.enabled = False  # 插件默认禁用复读功能
+        self.enabled = False  # 插件默认禁用
 
     @filter.command("repeat")
     async def repeat(self, event: AstrMessageEvent):
-        '''切换复读机的启用/禁用状态并复读消息'''
+        '''切换复读机的启用/禁用状态'''
         if not self.enabled:
             self.enabled = True
             yield event.plain_result("复读机插件已启用。现在我将复读您的消息。")
